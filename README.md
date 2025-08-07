@@ -8,11 +8,11 @@ python
 
 
 
-思维token范围预测  
+## 思维token范围预测  
 
-1.本次实验，首先需要微调模型，请准备好对应的qwen2系列的0.5B,1.5B,7B模型。
+### 1.本次实验，首先需要微调模型，请准备好对应的qwen2系列的0.5B,1.5B,7B模型。
 
-2.运行下面的命令，命令会自动下载实验所需的数据集并进行数据处理，处理后保存到对应的子文件夹下。
+### 2.运行下面的命令，命令会自动下载实验所需的数据集并进行数据处理，处理后保存到对应的子文件夹下。
 
 ```bash
 python ./think/get_think_process_1.py
@@ -20,23 +20,23 @@ python ./think/get_think_process_2.py
 python ./think/get_think_process_3.py
 ```
 
-3.本次实验需要llamafactory库，请读者自行下载[llamafactory库](https://github.com/hiyouga/LLaMA-Factory)，并且完成相应的配置。
+### 3.本次实验需要llamafactory库，请读者自行下载[llamafactory库](https://github.com/hiyouga/LLaMA-Factory)，并且完成相应的配置。
 
-4将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看对应的./think/convert_json.py中的代码。
+### 4将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看对应的./think/convert_json.py中的代码。
 
 ```bash
 python ./think/convert_json.py --choice 0 
 ```
 
-5请在llamafactory库中训练对应的模型，模型的训练参数，参见
+### 5请在llamafactory库中训练对应的模型，模型的训练参数，参见
 
 ```bash
 ./data/llamafactory/think/think_parameter.txt
 ```
 
-6训练好模型后，请读者自行下载[trl库](https://github.com/huggingface/trl)，并进行配置。
+### 6训练好模型后，请读者自行下载[trl库](https://github.com/huggingface/trl)，并进行配置。
 
-7实验需要对于trl库中的算法代码进行修改
+### 7实验需要对于trl库中的算法代码进行修改
 
 请参考
 ```bash
@@ -47,9 +47,9 @@ python ./think/convert_json.py --choice 0
 ```
 对于GRPO算法,RLOO算法,KTO算法,DPO算法的示例代码进行修改
 
-注明:
+#### 注明:
 
-1GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将reward_funcs赋值为我们设置的reward函数。
+##### 1GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将reward_funcs赋值为我们设置的reward函数。
 
 ```bash
 GRPO中
@@ -196,7 +196,7 @@ def reward(labels, completions):
     return torch.tensor(rewards, dtype=torch.float)
 ```
 
-2kto算法和DPO算法需要将数据转换为偏好数据集的格式,[数据格式](https://hugging-face.cn/docs/trl/dataset_formats),，用以下的代码来实现数据转换。
+##### 2kto算法和DPO算法需要将数据转换为偏好数据集的格式,[数据格式](https://hugging-face.cn/docs/trl/dataset_formats),，用以下的代码来实现数据转换。
 
 ```bash
 data_convert_preference.py
@@ -204,7 +204,7 @@ data_convert_preference.py
 
 训练过程中，请如有需要，请开始记录模式，[参考](https://hugging-face.cn/docs/trl/logging),实验这里使用tensorboard。
 
-8训练过后，测试代码如下
+### 8训练过后，测试代码如下
 
 ```bash
 python /think/think_predict.py
@@ -212,21 +212,21 @@ python /think/think_predict.py
 
 请参考论文实验结果，对照自己的实验结果，相差应该不大。
 
-2模型输出的步骤数目预测
+## 2模型输出的步骤数目预测
 
-首先下载并且运行如下示例
+### 1.首先下载并且运行如下示例
 ```bash
 python ./step/create_step.py
 python convert_json.py
 ```
 
-3运用llamafactory进行训练模型，模型参数在
+### 2.运用llamafactory进行训练模型，模型参数在
 
 ```bash
 ./data/llamafactory/step/step_paramter.txt
 ```
 
-4训练完毕之后,运行
+### 3.训练完毕之后,运行
 
 ```bash
 python /step/think_predict.py

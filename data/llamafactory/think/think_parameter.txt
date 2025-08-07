@@ -1,0 +1,30 @@
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli train \
+    --stage sft \
+    --do_train \
+    --model_name_or_path /tmp/model_path \
+    --dataset train_data \
+    --preprocessing_num_workers 1\
+    --dataset_dir ./data \
+    --freeze-trainable-layers 3\
+    --finetuning_type lora \
+    --output_dir ./saves/model_name/lora/ \
+    --cutoff_len 700 \
+    --per_device_train_batch_size 4 \
+    --gradient_accumulation_steps 16 \
+    --lr_scheduler_type cosine \
+    --save_steps 2000 \
+    --learning_rate 1e-3 \
+    --num_train_epochs 5 \
+    --max_samples  22000\
+    --lora_rank 8\
+    --plot_loss \
+    --fp16
+
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli export \
+    --model_name_or_path model_path \
+    --adapter_name_or_path /LLaMA-Factory/saves/model_name/lora \
+    --finetuning_type lora \
+    --export_dir ../model/step/ \-存储路径
+    --export_size 5 \
+    --export_device cpu \
+    --export_legacy_format False

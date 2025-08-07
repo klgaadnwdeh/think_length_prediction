@@ -1,0 +1,2 @@
+# think_length_prediction
+训练模型预测大模型输出的token区域和步骤数目

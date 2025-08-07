@@ -22,7 +22,7 @@ python ./think/get_think_process_3.py
 
 ### 3.本次实验需要llamafactory库，请读者自行下载[llamafactory库](https://github.com/hiyouga/LLaMA-Factory)，并且完成相应的配置。
 
-### 4将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看对应的./think/convert_json.py中的代码。
+### 4将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看对应的`./think/convert_json.py`中的代码。
 
 ```bash
 python ./think/convert_json.py --choice 0 
@@ -49,7 +49,7 @@ python ./think/convert_json.py --choice 0
 
 #### 注明:
 
-##### 1GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将reward_funcs赋值为我们设置的reward函数。
+##### 1GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将`reward_funcs`赋值为我们设置的reward函数。
 
 ```bash
 GRPO中

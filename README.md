@@ -6,11 +6,11 @@
 
 系统采用ubuntu-linux系统，请读者自行安装。
 
-项目采用的python版本>=3.10，请读者在项目中运行以下命令完成环境配置。
+项目采用Anaconda，虚拟环境python配置版本>=3.10，请读者在项目中运行以下命令完成环境配置。
 ```
 pip install -r requirements.txt
 ```
-另外需要读者安装[llamafactory库](https://github.com/hiyouga/LLaMA-Factory),[trl库](https://github.com/huggingface/trl)，并完成相应的配置。
+另外需要读者安装[llamafactory库](https://github.com/hiyouga/LLaMA-Factory),[trl库](https://github.com/huggingface/trl)，并完成相应的配置。建议可以在Anaconda环境中创建两个虚拟环境完成配置。
 
 实验采用的模型如下所示，请自行下载并安装，安装源可选择[魔塔社区](https://www.modelscope.cn/home)。
 

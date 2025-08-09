@@ -1,5 +1,5 @@
 # 模型思维长度预测
-中心思想:大模型在不联网，不增加外部知识的情况下，其面对问题的思维长度和步骤数目是可以被预测出来。
+中心思想:大模型在不联网，不增加外部知识的情况下，其面对问题的思维长度是可以被预测出来。
 
 其他工作:预测大模型面对问题输出的步骤数目。
 ### 配置
@@ -75,9 +75,8 @@ python ./think/convert_json.py --choice 0
 #### 注明:
 
 ##### 1.GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将`reward_funcs`赋值为我们设置的reward函数。
-GRPO修改部分如下所示:
+在trl库中对应'.\trl\trainer\grpo_trainer.py'位置处进行了以下修改
 ```
-在trl库中对应.\trl\trainer\grpo_trainer.py位置处
 1.
 _generate_and_score_completions函数中
 prompts = [x["prompt"] for x in inputs]下方加入
@@ -178,9 +177,9 @@ def reward(prompts,completions, labels, **kwargs):
     print(rewards)#打印出模型一个批次获得的奖励得分
     return rewards
 ```
-RLOO修改部分如下所示:
+在trl中对应.\trl\trainer\rloo_trainer.py中进行了如下修改
 ```
-在.\trl\trainer\rloo_trainer.py中,在train函数中
+在train函数中
 1.
 在queries = data["input_ids"].to(device)
 queries = queries.repeat(args.rloo_k, 1)下面加入

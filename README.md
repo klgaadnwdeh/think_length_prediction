@@ -1,16 +1,28 @@
-# think_length_prediction
-训练模型预测大模型输出的token区域和步骤数目  \n
+# 训练模型预测大模型输出的token区域和步骤数目 
 
 配置环境
-python 
 
+系统采用ubuntu-linux系统，请读者自行安装。
 
+项目采用的python版本>=3.10，请读者在项目中运行以下命令完成环境配置。
+```
+pip install -r requirements.txt
+```
+另外需要读者安装[llamafactory库](https://github.com/hiyouga/LLaMA-Factory),[trl库](https://github.com/huggingface/trl)，并完成相应的配置。
+
+实验采用的模型如下所示，请自行下载并安装，安装源可选择[魔塔社区](https://www.modelscope.cn/home)
+
+<img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/f1b29471-be79-47a9-bf90-a1628c36568c" />
+
+参数来源于阿里公布的官方文档,点击以下[链接](https://qwenlm.github.io/blog/qwen2/),进行阅读。
 
 
 
 ## 思维token范围预测  
 
-### 1.本次实验，首先需要微调模型，请准备好对应的qwen2系列的0.5B,1.5B,7B模型。
+### 1.本次实验，模型配置为
+
+
 
 ### 2.运行下面的命令，命令会自动下载实验所需的数据集并进行数据处理，处理后保存到对应的子文件夹下。
 
@@ -20,7 +32,7 @@ python ./think/get_think_process_2.py
 python ./think/get_think_process_3.py
 ```
 
-### 3.本次实验需要llamafactory库，请读者自行下载[llamafactory库](https://github.com/hiyouga/LLaMA-Factory)，并且完成相应的配置。
+### 3.本次实验需要llamafactory库，请读者自行下载，并且完成相应的配置。
 
 ### 4将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看对应的`./think/convert_json.py`中的代码。
 
@@ -34,7 +46,7 @@ python ./think/convert_json.py --choice 0
 ./data/llamafactory/think/think_parameter.txt
 ```
 
-### 6训练好模型后，请读者自行下载[trl库](https://github.com/huggingface/trl)，并进行配置。
+### 6训练好模型后，请读者自行下载，并进行配置。
 
 ### 7实验需要对于trl库中的算法代码进行修改
 

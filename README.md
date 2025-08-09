@@ -18,37 +18,29 @@ pip install -r requirements.txt
 
 
 
-## 思维token范围预测  
+### 思维token范围预测  
 
-### 1.本次实验，模型配置为
+#### 1.运行下面的命令，命令会自动下载实验所需的数据集并进行数据处理，处理后保存数据到对应的子文件夹下。
 
-
-
-### 2.运行下面的命令，命令会自动下载实验所需的数据集并进行数据处理，处理后保存到对应的子文件夹下。
-
-```bash
+```python
 python ./think/get_think_process_1.py
 python ./think/get_think_process_2.py
 python ./think/get_think_process_3.py
 ```
 
-### 3.本次实验需要llamafactory库，请读者自行下载，并且完成相应的配置。
+#### 2.将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看项目中`./think/convert_json.py`中的代码。
 
-### 4将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看对应的`./think/convert_json.py`中的代码。
-
-```bash
+```python
 python ./think/convert_json.py --choice 0 
 ```
 
-### 5请在llamafactory库中训练对应的模型，模型的训练参数，参见
+#### 3.请在llamafactory库中训练对应的模型，模型的训练参数，参见
 
-```bash
+```
 ./data/llamafactory/think/think_parameter.txt
 ```
 
-### 6训练好模型后，请读者自行下载，并进行配置。
-
-### 7实验需要对于trl库中的算法代码进行修改
+#### 4.训练好模型后，接下来需要修改trl库中的对应算法示例。因为实验将trl库中的相关算法示例文件进行了修改，请读者按照下面的文件对应trl库中的算法示例进行修改。
 
 请参考
 ```bash
@@ -57,11 +49,11 @@ python ./think/convert_json.py --choice 0
 ./trl-fix/kto.py
 ./trl-fix/DPO.py
 ```
-对于GRPO算法,RLOO算法,KTO算法,DPO算法的示例代码进行修改
+对于GRPO算法,RLOO算法,KTO算法,DPO算法的示例代码文件进行修改。
 
 #### 注明:
 
-##### 1GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将`reward_funcs`赋值为我们设置的reward函数。
+##### 1.GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将`reward_funcs`赋值为我们设置的reward函数。
 
 ```bash
 GRPO中
@@ -208,7 +200,7 @@ def reward(labels, completions):
     return torch.tensor(rewards, dtype=torch.float)
 ```
 
-##### 2kto算法和DPO算法需要将数据转换为偏好数据集的格式,[数据格式](https://hugging-face.cn/docs/trl/dataset_formats),，用以下的代码来实现数据转换。
+##### 2.kto算法和DPO算法需要将数据转换为偏好数据集的格式,数据格式点击下方[链接](https://hugging-face.cn/docs/trl/dataset_formats)进行查看。用以下的代码来实现数据转换。
 
 ```bash
 data_convert_preference.py

@@ -177,7 +177,7 @@ def reward(prompts,completions, labels, **kwargs):
     print(rewards)#打印出模型一个批次获得的奖励得分
     return rewards
 ```
-在trl中对应.\trl\trainer\rloo_trainer.py中进行了如下修改
+在trl中对应.\trl\trainer\rloo_trainer.py中进行了如下修改hh
 ```
 在train函数中
 1.

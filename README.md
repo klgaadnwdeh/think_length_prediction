@@ -5,9 +5,16 @@
 设备:RTX-3090系列的GPU。
 
 系统采用ubuntu-linux系统，请读者自行安装。
+```
+sudo apt update
+sudo apt install build-essential
+sudo ubuntu-drivers autoinstall
+sudo apt install nvidia-cuda-toolkit
+```
 
 项目采用Anaconda，虚拟环境python配置版本>=3.10，请读者在项目中运行以下命令完成环境配置。
 ```
+conda create --name project_env python=3.10
 pip install -r requirements.txt
 ```
 另外需要读者安装[llamafactory库](https://github.com/hiyouga/LLaMA-Factory),[trl库](https://github.com/huggingface/trl)，并完成相应的配置。建议可以在Anaconda环境中创建两个虚拟环境完成配置。

@@ -206,31 +206,31 @@ def reward(labels, completions):
 data_convert_preference.py
 ```
 
-训练过程中，请如有需要，请开始记录模式，[参考](https://hugging-face.cn/docs/trl/logging)来实现,实验这里使用tensorboard。
+训练过程中，如有需要，请开启记录模式，记录实验过程。本实验使用tensorboard来记录实验过程。具体设置参考[链接](https://hugging-face.cn/docs/trl/logging)来实现,
 
-### 8训练过后，测试代码如下
+#### 5训练过后，测试代码如下
 
 ```bash
 python /think/think_predict.py
 ```
 
-请参考论文实验结果，对照自己的实验结果，相差应该不大。
+请参考论文实验结果，对照自己的实验结果,相差在较小误差范围内是完全正确的。
 
-## 2模型输出的步骤数目预测
+### 2模型输出的步骤数目预测
 
-### 1.首先下载并且运行如下示例
+#### 1.首先下载并且运行如下示例
 ```bash
 python ./step/create_step.py
 python convert_json.py
 ```
 
-### 2.运用llamafactory进行训练模型，模型参数在
+#### 2.运用llamafactory进行训练模型，模型参数在
 
 ```bash
 ./data/llamafactory/step/step_paramter.txt
 ```
 
-### 3.训练完毕之后,运行
+#### 3.训练完毕之后,运行
 
 ```bash
 python /step/think_predict.py

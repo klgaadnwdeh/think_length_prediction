@@ -7,8 +7,8 @@
 系统采用ubuntu-linux系统，请读者自行安装。
 ```
 sudo apt update
-sudo apt install build-essential
 sudo ubuntu-drivers autoinstall
+sudo apt install build-essential
 sudo apt install nvidia-cuda-toolkit
 ```
 

@@ -1,6 +1,8 @@
 # 训练模型预测大模型输出的token区域和步骤数目 
 
-配置环境
+### 配置
+
+设备:RTX-3090系列的GPU。
 
 系统采用ubuntu-linux系统，请读者自行安装。
 
@@ -15,6 +17,8 @@ pip install -r requirements.txt
 <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/f1b29471-be79-47a9-bf90-a1628c36568c" />
 
 参数来源于阿里公布的官方文档,点击以下[链接](https://qwenlm.github.io/blog/qwen2/),进行阅读。
+相关算法文档可在以下网址中下载:
+
 
 
 

@@ -1,0 +1,10 @@
+accelerate==1.2.1
+datasets==3.2.0
+numpy==2.3.2
+torch==2.6.0+cu126
+torchvision==0.21.0
+torchaudio==2.6.0
+tqdm==4.67.1
+transformers==4.54.1
+trl==0.9.6
+vllm>=0.10.0

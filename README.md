@@ -206,7 +206,7 @@ def reward(labels, completions):
 data_convert_preference.py
 ```
 
-训练过程中，请如有需要，请开始记录模式，[参考](https://hugging-face.cn/docs/trl/logging),实验这里使用tensorboard。
+训练过程中，请如有需要，请开始记录模式，[参考](https://hugging-face.cn/docs/trl/logging)来实现,实验这里使用tensorboard。
 
 ### 8训练过后，测试代码如下
 

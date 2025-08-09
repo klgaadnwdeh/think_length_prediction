@@ -73,7 +73,31 @@ python ./think/convert_json.py --choice 0
 #### 注明:
 
 ##### 1.GRPO和RLOO算法中，由于我们将探索式奖励转换为监督式奖励，因此需要引入问题对应的正确标签，并在奖励函数中将`reward_funcs`赋值为我们设置的reward函数。
-
+GRPO修改部分如下所示:
+```
+在trl库中对应.\trl\trainer\grpo_trainer.py位置处
+1.
+_generate_and_score_completions函数中
+prompts = [x["prompt"] for x in inputs]下方加入
+labels=[x["answer"]]
+2.
+奖励获取的方式由原来
+rewards_per_func = self._calculate_rewards(inputs, original_prompts, completions, completion_ids_list)
+ _calculate_rewards(self, inputs, prompts, completions, completion_ids_list)函数
+修改为
+rewards_per_func = self._calculate_rewards(inputs, original_prompts, completions,lables,completion_ids_list)
+ _calculate_rewards(self, inputs, prompts, completions, completion_ids_list)函数，修改为 _calculate_rewards(self, inputs, prompts, completions, labels,completion_ids_list)
+3.
+在 _calculate_rewards中将奖励函数由原来的
+ output_reward_func = reward_func(
+                        prompts=prompts, completions=completions, completion_ids=completion_ids_list, **reward_kwargs
+                    )
+修改为
+output_reward_func = reward_func(
+                        prompts=prompts, completions=completions, labels=labels, **reward_kwargs
+                    )
+```
+使用新的奖励函数如下所示
 ```bash
 GRPO中
 def reward(prompts,completions, labels, **kwargs):
@@ -152,6 +176,29 @@ def reward(prompts,completions, labels, **kwargs):
     print(rewards)#打印出模型一个批次获得的奖励得分
     return rewards
 ```
+RLOO修改部分如下所示:
+```
+在.\trl\trainer\rloo_trainer.py中,在train函数中
+1.
+在queries = data["input_ids"].to(device)
+queries = queries.repeat(args.rloo_k, 1)下面加入
+labels= data["class_sort"].to(device)
+labels= labels.repeat(args.rloo_k, 1)
+2.
+在 for i in range(0, queries.shape[0], args.local_rollout_forward_batch_size):下面加入
+label = labels[i : i + args.local_rollout_forward_batch_size]
+3.
+将else之后的score = torch.tensor(reward_model(processing_class.batch_decode(label),processing_class.batch_decode(postprocessed_response, skip_special_tokens=True)修改为
+ self.reward_model(processing_class.batch_decode(label),,processing_class.batch_decode(postprocessed_query_response, skip_special_tokens=True)),dtype=torch.float,).to(postprocessed_query_response.device)
+4.
+在generate_completions函数中
+在for batch in self.eval_dataloader:query = batch["input_ids"]下方加入
+label=batch["class_sort"]
+5.
+将else之后:score = torch.tensor(self.reward_model(processing_class.batch_decode(postprocessed_query_response, skip_special_tokens=True)修改为
+ score = torch.tensor(self.reward_model(processing_class.batch_decode(label),,processing_class.batch_decode(postprocessed_query_response, skip_special_tokens=True)),dtype=torch.float,).to(postprocessed_query_response.device)
+```
+使用新的奖励函数如下所示
 ```bash
 RLOO
 

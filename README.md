@@ -17,8 +17,16 @@ pip install -r requirements.txt
 <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/f1b29471-be79-47a9-bf90-a1628c36568c" />
 
 参数来源于阿里公布的官方文档,点击以下[链接](https://qwenlm.github.io/blog/qwen2/),进行阅读。
+
 相关算法文档可在以下网址中下载:
 
+GRPO:https://arxiv.org/abs/2402.03300
+
+RLOO:https://arxiv.org/abs/2402.14740
+
+KTO:https://arxiv.org/abs/2402.01306
+
+DPO:https://arxiv.org/abs/2305.18290
 
 
 

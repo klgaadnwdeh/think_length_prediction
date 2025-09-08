@@ -36,7 +36,7 @@ def count(data):
     class_counts = Counter()
     for example in data:
         # 计算新类的值
-        class_num = int(example["label"] / 25)
+        class_num = int(example["think_label"] / 25)
         # 更新计数
         class_counts[class_num] += 1
         # 打印每个新类的数目
@@ -47,7 +47,7 @@ def count(data):
     # 创建新列并过滤数
     filtered_data = []
     for example in data:
-        class_num = int(example["label"] / 25)
+        class_num = int(example["think_label"] / 25)
         if class_num in valid_classes:
             example["class_name"] = class_num
             filtered_data.append(example)

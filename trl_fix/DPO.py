@@ -19,8 +19,6 @@ if __name__ == '__main__':
 
     model = AutoModelForCausalLM.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    train_data = load_from_disk(args.train_data_path)
-    valid_data = load_from_disk(args.valid_data_path)
     train_dataset = load_from_disk(args.train_data_path)
     eval_dataset=load_from_disk(args.valid_data_path)
     train_dataset = train_dataset.map(apply_chat_template, fn_kwargs={"tokenizer": tokenizer})

@@ -4,7 +4,7 @@ import random
 from datasets import load_dataset, Dataset, load_from_disk
 from transformers import AutoTokenizer
 import argparse
-
+import os
 
 def process_think_data(data):
     result = []
@@ -96,7 +96,7 @@ def count(data,count_number=400):
     class_counts = Counter()
     for example in data:
         # 计算新类的值
-        class_num = int(example["label"] / 25)
+        class_num = int(example["think_label"] / 25)
         # 更新计数
         class_counts[class_num] += 1
         # 打印每个新类的数目
@@ -107,7 +107,7 @@ def count(data,count_number=400):
     # 创建新列并过滤数
     filtered_data = []
     for example in data:
-        class_num = int(example["label"] / 25)
+        class_num = int(example["think_label"] / 25)
         if class_num in valid_classes:
             example["class_name"] = class_num
             filtered_data.append(example)
@@ -186,11 +186,11 @@ if __name__ == "__main__":
     else:
         data="data3"
     output_path=os.path.join(args.output_path,data)
-    if output_path.exists():
+    if os.path.exists(output_path):
         print(f"路径存在: {output_path}")
     else:
         print(f"路径不存在，正在创建: {output_path}")
-        output_path.mkdir(parents=True,exist_ok=True)
+        os.makedirs(output_path, exist_ok=True)
     ds = load_dataset(data_path)["train"]
     label_data = process_data(ds)
     data1 = count(label_data,filter_number)

@@ -102,6 +102,7 @@ if __name__=='__main__':
     parser.add_argument('--choice', type=int, help='', default="../data/think/")
     parser.add_argument('--function_choice', type=int, help='', default=0)
     args = parser.parse_args()
+    choice=args.choice
     if choice==0:
         data_path="data1"
     elif choice==1:

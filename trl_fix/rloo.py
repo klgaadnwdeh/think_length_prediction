@@ -87,7 +87,9 @@ question:{question}
 2估计的令牌数量范围在320，则真实思考过程中所花费的令牌数量基本在(320*25,321*25-1)
 要求：仅输出估计的令牌数量范围，不生成其他的内容。
 """
-
+def data_solution(example):
+    example["prompt"]=prompt_think.format(question=example["prompt"])
+    return example
 
 def reward(labels, completions):
     """
@@ -223,8 +225,8 @@ if __name__ == "__main__":
     )
     ################\data1\predic_think_class\train_data_class
     # Dataset
-    train_dataset = load_from_disk(args.train_data_path)
-    eval_dataset = load_from_disk(args.valid_data_path)
+    train_dataset = load_from_disk(args.train_data_path).map(data_solution)
+    eval_dataset = load_from_disk(args.valid_data_path).map(data_solution)
     ################
     dataset_text_field = "prompt"
 

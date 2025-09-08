@@ -19,7 +19,7 @@ import json
 def get_think_label(example,output_file=""):
     converted_data = []
     for data in example:
-        question=data['prompt']
+        question=prompt_think.format(question=data['prompt'])
         label=data['class_name']
         converted_data.append({'instruction':question,"input":"",'output':str(label)})
     converted_data=Dataset.from_list(converted_data)

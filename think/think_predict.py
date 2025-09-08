@@ -87,7 +87,7 @@ def process_dataloader(dataloader):
     for batch in dataloader:
         # 假设每个 batch 是一个字典，包含 'prompt' 和 'labels' 键
         prompt = prompt_think.format(question=batch["question"][0])  # 因为 batch_size=1，取第一个元素
-        labels = batch["step_count"][0].item()
+        labels = batch["class_name"][0].item()
         data_list.append({"prompt": prompt, "label": labels})
     return data_list
 

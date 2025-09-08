@@ -99,7 +99,7 @@ def convert_dpo(path="../data/think/"):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, help='', default="../data/think/")
-    parser.add_argument('--choice', type=int, help='', default="../data/think/")
+    parser.add_argument('--choice', type=int, help='', default=0)
     parser.add_argument('--function_choice', type=int, help='', default=0)
     args = parser.parse_args()
     choice=args.choice

@@ -74,7 +74,7 @@ def assemble_batch(data_list):
     batch = []
     for row in data_list:
         question = row["prompt"]
-        full_content = prompt.format(question=question)
+        full_content = prompt_think.format(question=question)
         batch.append((row, full_content))
     return batch
 
@@ -86,7 +86,7 @@ def process_dataloader(dataloader):
     data_list = []
     for batch in dataloader:
         # 假设每个 batch 是一个字典，包含 'prompt' 和 'labels' 键
-        prompt = prompt_think.format(question=batch["question"][0])  # 因为 batch_size=1，取第一个元素
+        prompt = batch["prompt"][0]  # 因为 batch_size=1，取第一个元素
         labels = batch["class_name"][0].item()
         data_list.append({"prompt": prompt, "label": labels})
     return data_list

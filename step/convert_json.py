@@ -1,5 +1,6 @@
 from datasets import load_from_disk,Dataset
 import argparse
+import json
 
 prompt="""
 下面有一道来自deepseek-R1的问题，你的任务是,考虑问题的深度，难度，还有复杂度，考虑下面的问题总共要花几个步骤来解决即可，但是不需要给出解决内容，只给出大致的步骤总数即可。

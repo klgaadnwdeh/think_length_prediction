@@ -37,7 +37,7 @@ def convert_kto(path="../data/think/"):
         transformed_data.append(true_row)
 
         # 创建标签为false的行，通过在think_label内容中减去一个0-10内的随机数值
-        false_value = str(int(think_label_content) - random.randint(0, 10))
+        false_value = int(think_label_content) - random.randint(0, 10)
         false_row = {
             'prompt': [{'content': prompt_content, 'role': 'user'}],
             'completion': [{'content': false_value, 'role': 'assistant'}],
@@ -79,7 +79,7 @@ def convert_dpo(path="../data/think/"):
             {'content': think_label_content, 'role': 'assistant'}
         ]
         # 创建标签为false的行（rejected），通过在think_label内容中减去一个0-10内的随机数值
-        false_value = str(int(think_label_content) - random.randint(0, 10))
+        false_value = int(think_label_content) - random.randint(0, 10)
         rejected = [
             {'content': prompt_content, 'role': 'user'},
             {'content': false_value, 'role': 'assistant'}

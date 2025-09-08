@@ -14,7 +14,7 @@ sudo apt install build-essential
 sudo apt install nvidia-cuda-toolkit
 ```
 
-项目采用Anaconda，虚拟环境python配置版本要求>=3.17小于3.11，请读者在项目中运行以下命令完成环境配置。
+项目采用Anaconda，虚拟环境python配置版本要求>=3.7小于3.11，请读者在项目中运行以下命令完成环境配置。
 ```
 conda create --name project_env python=3.10
 pip install -r requirements.txt

@@ -118,7 +118,7 @@ def count(data,count_number=400):
     return filtered_dataset
 
 
-def get_data(data1,number=20000,ratio=0.3,output_file="/data/think"):
+def get_data(data1,number=20000,ratio=0.3,output_file="../data/think"):
     class_counts = {}
     for item in data1:
         class_name = item['class_name']

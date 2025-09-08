@@ -3,7 +3,19 @@ from trl import KTOConfig, KTOTrainer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import argparse
 from transformers import TrainingArguments
-
+prompt_think="""
+人得到一个问题，首先是根据问题的深度，难度，复杂度，慢慢地思考问题应该如何解决。在思考过程中运用自己的各种能力，对于问题进行逐步逐步推导解决，在一步一步地推导解决过程中得到结果。得到结果之后，人停止思考并且整合思考过程中的内容，进行大量简化后，得到问题的整个解决办法和结果，最后输出问题的解决办法和结果。
+任务描述：
+question:{question}
+你的任务是考虑问题在人思考过程中所花费的令牌数量的范围。具体根据问题可能涉及的深度、复杂性和长度，估算出思考过程总共花费的令牌数量的范围。
+例如:
+1估计的令牌数量范围在200，则真实思考过程中所花费的令牌数量基本在(200*25,201*25-1)
+2估计的令牌数量范围在320，则真实思考过程中所花费的令牌数量基本在(320*25,321*25-1)
+要求：仅输出估计的令牌数量范围，不生成其他的内容。
+"""
+def data_solution(example):
+    example["prompt"]=prompt_think.format(question=example["prompt"])
+    return example
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -24,8 +36,8 @@ if __name__ == '__main__':
 
     model = AutoModelForCausalLM.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    train_data=load_from_disk(args.train_data_path)
-    valid_data=load_from_disk(args.valid_data_path)
+    train_data=load_from_disk(args.train_data_path).map(data_solution)
+    valid_data=load_from_disk(args.valid_data_path).map(data_solution)
     #1024,2048
     training_args = KTOConfig(output_dir=args.output_path,
                               logging_steps=args.logging_steps,

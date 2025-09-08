@@ -126,7 +126,7 @@ if __name__ == '__main__':
     train_dataset = dataset_1.map(lambda x: {
         "prompt": [
             {"role": "system", "content": "完全按照用户的输入来解决用户的问题"},
-            {"role": "user", "content":x["prompt"]}
+            {"role": "user", "content": prompt_think.format(question=x["prompt"])}
         ],
         "answer":x["class_name"]
     })
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     eval_dataset = dataset_2.map(lambda x: {
         "prompt": [
             {"role": "system", "content": "完全按照用户的输入来解决用户的问题"},
-            {"role": "user", "content": x["prompt"]}
+            {"role": "user", "content":  prompt_think.format(question=x["prompt"])}
         ],
         "answer":x["class_name"]
     })

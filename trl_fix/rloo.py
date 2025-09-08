@@ -131,7 +131,7 @@ def reward(labels, completions):
         3 if abs(r - a) <= 2 else
         0.0
         for r, a in zip(labels, preds)
-    ]第一个
+    ]#第一次实验
     # rewards = [
     #     5 if abs(r - a) <= 0 else
     #     4 if abs(r - a) <= 0.5 else
@@ -139,7 +139,7 @@ def reward(labels, completions):
     #     2 if abs(r - a) <= 1.5 else
     #     1 if abs(r - a) <= 2 else
     #     0.0
-    #     for r, a in zip(labels, preds)]  # 第三个
+    #     for r, a in zip(labels, preds)]  # 第三次实验
     # rewards = [
     #     16 if abs(r - a) < 0 else
     #     12 if abs(r - a) < 0.5 else
@@ -147,7 +147,7 @@ def reward(labels, completions):
     #     4 if abs(r - a) <= 2 else
     #     0.0
     #     for r, a in zip(labels, preds)
-    # ]第二个
+    # ]第二次实验
     print(rewards)
     return torch.tensor(rewards, dtype=torch.float)
 

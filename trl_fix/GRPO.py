@@ -158,7 +158,7 @@ if __name__ == '__main__':
                                ,report_to="tensorboard"
                                )
     trainer = GRPOTrainer(
-        model=args.output_path,
+        model=args.model_path,
         reward_funcs=reward,
         args=training_args,
         train_dataset=train_dataset,

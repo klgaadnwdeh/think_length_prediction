@@ -126,10 +126,10 @@ def calculate_metrics(preds, labels):
     labels = np.array(labels, dtype=np.float64)
 
     # Calculate strict accuracy
-    strict_accuracy = ((np.abs(preds - labels) <= 0.5).sum()) / len(labels)
+    strict_accuracy = ((np.abs(preds - labels) <= 1).sum()) / len(labels)
 
     # Calculate accuracy with tolerance
-    accuracy_with_tolerance = ((np.abs(preds - labels) <= 1).sum()) / len(labels)
+    accuracy_with_tolerance = ((np.abs(preds - labels) <= 2).sum()) / len(labels)
     return strict_accuracy,accuracy_with_tolerance
 
 def find_text_discrepancies(list1, batch_size=100000):

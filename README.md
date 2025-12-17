@@ -19,7 +19,7 @@ sudo apt install nvidia-cuda-toolkit
 conda create --name project_env python=3.10
 pip install -r requirements.txt
 ```
-另外需要读者安装[llamafactory库](https://github.com/hiyouga/LLaMA-Factory),[trl库](https://github.com/huggingface/trl)，并完成相应的配置。建议可以在Anaconda环境中创建两个虚拟环境完成配置。
+另外需要读者安装[llamafactory库](https://github.com/hiyouga/LLaMA-Factory),[trl库](https://github.com/huggingface/trl)，实验所使用的trl库的版本为v0.25.1，读者可以使用该版本的库或者更新的版本并完成相应的配置。建议可以在Anaconda环境中创建两个虚拟环境完成llamafactory和trl的配置。
 
 实验采用的模型如下所示，请自行下载并安装，安装源可选择[魔塔社区](https://www.modelscope.cn/home)。
 

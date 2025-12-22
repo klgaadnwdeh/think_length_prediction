@@ -76,7 +76,7 @@ python ./think/convert_json.py --choice 0
 ##### 2.ORPO算法和DPO算法需要将数据转换为偏好数据集的格式,数据格式点击下方[链接](https://hugging-face.cn/docs/trl/dataset_formats)进行查看。用以下的代码来实现数据转换。
 
 ```bash
-data_convert_preference.py
+./think/data_convert_preference.py
 ```
 
 训练过程中，如有需要，请开启记录模式，记录实验过程。本实验使用tensorboard来记录实验过程。具体设置参考[链接](https://hugging-face.cn/docs/trl/logging)来实现,

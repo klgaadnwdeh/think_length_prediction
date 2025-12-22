@@ -1,10 +1,11 @@
-from datasets import load_from_disk, Dataset, concatenate_datasets,tqdm
+from datasets import load_dataset, Dataset, concatenate_datasets
+from tqdm import tqdm
 import os
 from vllm import LLM, SamplingParams
 import argparse
 import json
 import numpy as np
-
+from transformers import AutoTokenizer
 prompt7 = """
 问题:{problem}/
 解决方案:{solution}/
@@ -90,7 +91,7 @@ def load_llm_model(model_path, tensor_parallel_size=1, enforce_eager=True, gpu_m
     return llm, tokenizer
 
 
-def create_step_data(datasets, model, SampingParams, save_dir="../data/step/"):
+def create_step_data(datasets, model, sampling_params, tokenizer,save_dir="../data/step/"):
     examples = [data2 for data2 in datasets]
     problems = [data1["instruction"] for data1 in datasets]
     tmp_dataset = Dataset.from_dict({})
@@ -98,7 +99,7 @@ def create_step_data(datasets, model, SampingParams, save_dir="../data/step/"):
     for j in range(0, len(examples), 10000):
         example = examples[j:j + 10000]
         problem = problems[j:j + 10000]
-        response = find_text_discrepancies(example,model,SampingParams)
+        response = find_text_discrepancies(example,model,sampling_params,tokenizer)
         # 准备数据字典
         data = {
             "question": [q for q in problem],  # 或者用 problem 变量如果你限制了问题的数量
@@ -147,7 +148,7 @@ def assemble_batch(data_list):
     return batch
 
 
-def find_text_discrepancies(list1,model,SamplingParams,batch_size=5000):
+def find_text_discrepancies(list1,model,sampling_params,tokenizer,batch_size=5000):
     """使用批处理找出事件间的差异。"""
     results = []
     print("开始处理...")
@@ -168,7 +169,7 @@ def find_text_discrepancies(list1,model,SamplingParams,batch_size=5000):
                 inputs = tokenizer.apply_chat_template(prompt, tokenize=False, add_generation_prompt=True)
                 prompt_ids = tokenizer.encode(inputs, add_special_tokens=False)
                 test.append(prompt_ids)
-            outputs = model.generate(prompt_token_ids=test, sampling_params=SamplingParams)  # ,lora_request=self.lora
+            outputs = model.generate(prompt_token_ids=test, sampling_params=sampling_params)  # ,lora_request=self.lora
             for output in outputs:
                 generated_text = output.outputs[0].text
                 if generated_text == "":
@@ -208,7 +209,7 @@ if __name__ == "__main__":
     save_path = os.path.join(args.data_prefix_path, tmp_path)
 
     sample_size = args.sample_size
-    datasets = load_from_disk(data_path)["train"]
+    datasets = load_dataset(data_path)["train"]
     if choice == 0:
         datasets = datasets.filter(
             lambda x: x["problem"] and len(x["problem"]) < 498 and len(x["solution"]) < 4000 and x[
@@ -220,5 +221,5 @@ if __name__ == "__main__":
     shuffled_data = datasets.shuffle(seed=42)
     # 抽取指定数量的数据
     sampled_data = shuffled_data.select(range(min(sample_size, len(shuffled_data))))
-    create_step_data(sampled_data, model=model, SampingParams=sampling_params,
+    create_step_data(sampled_data, model=model, sampling_params=sampling_params,tokenizer
                      save_dir=save_path)

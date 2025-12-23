@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument('--number', type=int, help='The length of the train_data',
                         default=9000)
     parser.add_argument('--output_path', type=str, help='',
-                        default="../data/think")
+                        default="../data/think/")
     args = parser.parse_args()
 
     tokenizer = AutoTokenizer.from_pretrained(args.AutoTokenizer_path, legacy=False)

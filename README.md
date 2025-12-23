@@ -56,7 +56,7 @@ GRPO:https://arxiv.org/abs/2402.03300
 
 RLOO:https://arxiv.org/abs/2402.14740
 
-KTO:https://arxiv.org/abs/2402.01306
+ORPO:https://arxiv.org/pdf/2403.07691
 
 DPO:https://arxiv.org/abs/2305.18290
 
@@ -82,7 +82,7 @@ python ./think/get_think_process_3.py
 
 ### 步骤 3：模型训练（使用 LLaMA-Factory）
 
-训练配置文件位于：（./data/llamafactory/think/think_parameter.txt） 按照该配置启动训练即可。
+训练配置文件位于：（可以查看./llamafactory/think/parameter.txt或者./data/llamafactory/think/think_parameter.txt） 按照该配置启动训练即可。
 
 ### 步骤 4：修改 TRL 算法示例（关键！）
 由于本项目对 TRL 的算法实现进行了定制化修改，请替换以下文件到你的 TRL 库对应位置：
@@ -90,8 +90,8 @@ python ./think/get_think_process_3.py
 ```
 ./trl-fix/GRPO.py      → 替换 TRL 中的 GRPO 示例
 ./trl-fix/RLOO.py      → 替换 RLOO 示例
-./trl-fix/kto.py       → 替换 KTO 示例
-./trl-fix/DPO.py       → 替换 DPO 示例
+./trl-fix/ORPO_unsloth.py → 替换 ORPO 示例
+./trl-fix/DPO_unsloth.py  → 替换 DPO 示例
 ```
 ⚠️ 注意：ORPO 与 DPO 需要偏好数据格式。格式规范见 TRL 数据格式文档，转换脚本为：
 ```

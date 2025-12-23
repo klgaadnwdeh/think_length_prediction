@@ -182,7 +182,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, default="../model/Qwen2.5-7B-Instruct")
     parser.add_argument('--choice', type=int, help='0 for dataset[0], 1 for dataset[1]', default=0)
-    parser.add_argument('--data_prefix_path', type=str, help='', default="../data/step")
+    parser.add_argument('--data_prefix_path', type=str, help='', default="../data/step/")
     parser.add_argument('--sample_size', type=int, help='', default=35000)
     parser.add_argument('--temperature', type=float, default=0.3,
                         help='Sampling temperature, higher means more random')

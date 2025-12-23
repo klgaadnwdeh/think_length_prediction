@@ -33,7 +33,7 @@ def convert_and_save_dataset(dataset, output_file):  # 改进：参数名更清�
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--choice', type=int, help='0 for dataset[0], 1 for dataset[1]', default=0)
-    parser.add_argument('--data_prefix_path', type=str, help='', default='../data/step')
+    parser.add_argument('--data_prefix_path', type=str, help='Convert the path to your own corresponding data directory.', default='../data/step/')
     parser.add_argument('--output_prefix_path', type=str, help='', default='../data/llamafactory/step/')
     args = parser.parse_args()
 

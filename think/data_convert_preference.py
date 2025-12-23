@@ -28,7 +28,7 @@ def convert_dpo(original_data_path, output_base_path, seed=42):
     
     # 在原始目录的同级创建 dpo_ 前缀的新目录
     output_dir_name = "dpo_" + dataset_name
-    save_path = os.path.join(original_parent_dir, f"dpo_{dataset_name}")
+    save_path = os.path.join(output_base_path, f"dpo_{dataset_name}")
     os.makedirs(save_path, exist_ok=True)
     
     transformed_data = []

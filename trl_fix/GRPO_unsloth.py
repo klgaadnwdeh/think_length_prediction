@@ -59,8 +59,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # ... (args 定义保持不变) ...
     parser.add_argument('--model_path', type=str, default=r"../model/think/..")
-    parser.add_argument('--train_data_path', type=str, default=r"../data/think/")
-    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/..")
+    parser.add_argument('--train_data_path', type=str, default=r"../data/think/data1/train_data")
+    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/data1/valid_data")
     parser.add_argument('--logging_steps', type=int, help="the logging frequency.", default=10)
     parser.add_argument('--save_steps', type=int, help="the saving frequency.", default=13000)
     parser.add_argument('--num_train_epochs', type=int, help="The number of training epochs for the reward model.",
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     max_seq_length = 1044
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=r"/mnt/d/home/home/picture_core/total/1/Qwen2-0.5B-Instruct",
+        model_name=args.model_path,
         max_seq_length=max_seq_length,
         load_in_4bit=False,
         load_in_8bit=False,

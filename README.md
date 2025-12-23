@@ -52,7 +52,7 @@ python ./think/get_think_process_3.py
 #### 2.将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看项目中`./think/convert_json.py`中的代码。
 
 ```python
-python ./think/convert_json.py --choice 0 
+python ./think/convert_json.py --choice 0 --data_path xxxx
 ```
 
 #### 3.请在llamafactory库中训练对应的模型，模型的训练参数，参见

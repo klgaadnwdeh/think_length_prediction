@@ -235,7 +235,7 @@ def find_text_discrepancies(list1,llm_model_path, batch_size=100000, limit=0):
 
 if __name__ == '__main__':
     limit=[0,0.5,1,2]
-    data_path = r"/mnt/d/home/home/science/data/think/data3/1/valid_data_label"
+    data_path = r"../data/think/.."
     dataset = datasets.load_from_disk(data_path)
     validation_dataloader = generate_dataloaders(dataset)
     data_list = process_dataloader(validation_dataloader)

@@ -24,9 +24,9 @@ question:{question}
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, default=r"/mnt/d/home/home/picture_core/total/3/1/Qwen2-0.5B-Instruct")
-    parser.add_argument('--train_data_path', type=str, default=r"/mnt/d/home/home/science/data/think/data4/temp_1/dpo/train_preference")
-    parser.add_argument('--valid_data_path', type=str, default=r"/mnt/d/home/home/science/data/think/data4/temp_1/dpo/valid_preference")
+    parser.add_argument('--model_path', type=str, default=r"../model/think/..")
+    parser.add_argument('--train_data_path', type=str, default=r"../data/think/")
+    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/..")
     parser.add_argument('--logging_steps', type=int, help="", default=10)
     parser.add_argument('--num_train_epochs', type=int, help="The number of training epochs for the reward model.",
                         default=6)

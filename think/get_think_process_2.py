@@ -4,35 +4,36 @@ import random
 from datasets import load_dataset, Dataset, load_from_disk
 from transformers import AutoTokenizer
 
-
-def process_think_data(data):
+def process_think_data(data, tokenizer):  # 添加tokenizer参数
     result=[]
     for data1 in data:
-        length = 0
-        length1=0
         start = "<think>"
         end = "</think>"
         question = data1['instruction']
         output_data = data1["response"]
         think_data = output_data.split(start)[-1].split(end)[0].strip()
         encoded_texts = tokenizer(think_data, return_tensors="pt", padding=False, truncation=True)
-        for ids in encoded_texts['input_ids']:
-            length = len(ids)
-            print(length)
+        length = encoded_texts['input_ids'].shape[1]  # 直接获取长度
         result.append({"prompt": question, "think_label": length})
     return Dataset.from_list(result)
 
-
-def process_data(data):
-    result_data = process_think_data(data)
+def process_data(data, tokenizer):  # 修改process_data以接收tokenizer
+    result_data = process_think_data(data, tokenizer)
     return result_data
 
-
 def count(data):
-    seem = set()
-    seem = [seem.add(d["prompt"]) for d in data]
-    if len(seem) == len(data):
-        print("数据的长度是一样的，没有这个出错的")
+    # 正确检查重复prompt的方法
+    seen_prompts = set()
+    duplicate_count = 0
+    for d in data:
+        if d["prompt"] in seen_prompts:
+            duplicate_count += 1
+        else:
+            seen_prompts.add(d["prompt"])
+    if duplicate_count == 0:
+        print("数据集中没有重复的prompt。")
+    else:
+        print(f"发现 {duplicate_count} 条重复的prompt记录。")
     class_counts = Counter()
     for example in data:
         # 计算新类的值
@@ -63,30 +64,38 @@ def count(data):
 # 15000y,按照这个最大的来进行获取，然后操作成为这个平衡的训练集合，然后验证数据集合为不要求平衡即可
 # 30000,以上，把这个训练数据集合，验证数据集合操作成为这个平衡数据集合，来进行操作即可
 
-
-def reduce_dataset_to_19k(train_dataset, source_data, valid_data):
-    dataset = Dataset.from_list(source_data)
-    class_counts = Counter(dataset['class_name'])
-    max_class = max(class_counts, key=class_counts.get)
-    train_dataset = Dataset.from_list(train_dataset)
-    valid_dataset = Dataset.from_list(valid_data)
-    while len(train_dataset) > 19000:
-        indices_to_keep = [
-            i for i, item in enumerate(train_dataset)
-            if item['class_name'] != max_class
-        ]
-        index = [i for i, item in enumerate(dataset)
-                 if item['class_name'] != max_class
-                 ]
-        valid_index = [i for i, item in enumerate(valid_dataset)
-                       if item['class_name'] != max_class]
-        train_dataset = train_dataset.select(indices_to_keep)
-        valid_dataset = valid_dataset.select(valid_index)
-        dataset = dataset.select(index)
-        class_counts = Counter(dataset['class_name'])
+def reduce_dataset_to_19k(train_data_list, source_data_list, valid_data_list):
+    # 先将列表转换为Dataset以便操作
+    train_dataset = Dataset.from_list(train_data_list)
+    source_dataset = Dataset.from_list(source_data_list)
+    valid_dataset = Dataset.from_list(valid_data_list)
+    
+    target_size = 19000
+    if len(train_dataset) <= target_size:
+        return train_data_list, valid_data_list
+    
+    # 计算需要删除的样本数
+    to_remove = len(train_dataset) - target_size
+    print(f"需要削减 {to_remove} 个样本以达到 {target_size} 的目标。")
+    
+    # 按类别统计并决定从最多样本的类别中删除
+    class_counts = Counter(train_dataset['class_name'])
+    while to_remove > 0 and class_counts:
         max_class = max(class_counts, key=class_counts.get)
-
-    return train_dataset, valid_dataset.to_list()
+        # 找出该类别在训练集中的索引
+        class_indices = [i for i, item in enumerate(train_dataset) if item['class_name'] == max_class]
+        # 确定要删除的数量（不能超过该类别现有数量）
+        remove_from_class = min(len(class_indices), to_remove)
+        # 随机选择要删除的索引
+        indices_to_remove = random.sample(class_indices, remove_from_class)
+        # 从训练集中删除
+        train_dataset = train_dataset.select([i for i in range(len(train_dataset)) if i not in indices_to_remove])
+        # 更新需要删除的数量
+        to_remove -= remove_from_class
+        # 更新类别统计
+        class_counts = Counter(train_dataset['class_name'])
+    
+    return train_dataset.to_list(), valid_dataset.to_list()
 
 
 def get_data(data1):
@@ -128,12 +137,16 @@ def get_data(data1):
     print("Train size:", len(train_data_label))
     print("Valid size:", len(valid_data))
 
-
 if __name__ == "__main__":
-    tokenizer = AutoTokenizer.from_pretrained(r"../model/think/Qwen2-0.5B-Instruct", legacy=False)
+    import random
+    # 设置随机种子确保可复现
+    SEED = 42
+    random.seed(SEED)
     from datasets import load_dataset
-    # Login using e.g. `huggingface-cli login` to access this dataset
+    tokenizer = AutoTokenizer.from_pretrained(r"../model/think/Qwen2-0.5B-Instruct", legacy=False)
     ds = load_dataset(r"Magpie-Align/Magpie-Reasoning-V1-150K-CoT-Deepseek-R1-Llama-70B")["train"]
-    label_data=process_data(ds)
+    
+    # 传递tokenizer给process_data
+    label_data = process_data(ds, tokenizer)
     data = count(label_data)
-    get_data(data)
+    get_data(data)  

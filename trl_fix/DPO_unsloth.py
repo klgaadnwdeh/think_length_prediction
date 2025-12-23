@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--logging_steps', type=int, help="", default=10)
     parser.add_argument('--num_train_epochs', type=int, help="The number of training epochs for the reward model.",
                         default=6)
-    parser.add_argument('--output_path', type=str, default=r"/mnt/f/home_fix/3/dpo/model")
+    parser.add_argument('--output_path', type=str, default=r"../model/think/data1/DPO/data1/model")
     args = parser.parse_args()
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=args.model_path, 

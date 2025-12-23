@@ -118,7 +118,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_prompt_length', type=int,
                         help="Maximum length of the completion. This argument is required if you want to use the default data "
                              "collator and your model is an encoder-decoder.", default=1024)
-    parser.add_argument('--output_path', type=str, help="Output path for the trained model", default="../model/think//data1/GRPO")
+    parser.add_argument('--output_path', type=str, help="Output path for the trained model", default="../model/think/GRPO/data1/model")
     args = parser.parse_args()
 
 

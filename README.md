@@ -84,7 +84,7 @@ python ./think/convert_json.py --choice 0 --data_path xxxx
 #### 5训练过后，测试代码如下
 
 ```bash
-python /think/think_predict.py
+python /think/think_predict.py 
 ```
 
 请参考论文实验结果，对照自己的实验结果,相差在较小误差范围内是完全正确的。

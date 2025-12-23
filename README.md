@@ -108,37 +108,38 @@ python convert_json.py
 ```bash
 python /step/think_predict.py
 ```
+# CoT长度感知的大语言模型推理调度机制
+
 核心思想：在不联网、不引入外部知识的前提下，大语言模型（LLM）面对特定问题时所“思考”的 token 长度（即内部推理步数）是可以被有效预测的。
 
 本项目不仅探索了思维长度的预测，还进一步研究了模型输出步骤数目的预测，为理解 LLM 的内部决策过程提供新视角。
 
-📚 相关工作
+##📚 相关工作
 思维长度建模：预测模型在生成答案前所需的内部推理 token 数量。
 步骤数目预测：估计模型完成任务所需的逻辑/操作步骤总数。
 本项目复现并改进了多种主流对齐算法（GRPO、RLOO、KTO、DPO 等），相关论文见下文。
-⚙️ 环境配置指南
+##⚙️ 环境配置指南
 硬件与系统要求
 GPU：NVIDIA RTX 3090 系列（或同等算力）
 操作系统：Ubuntu Linux（建议 20.04 或 22.04）
 安装基础依赖（Ubuntu）
 bash
 编辑
-sudo apt update
+```sudo apt update
 sudo ubuntu-drivers autoinstall          # 自动安装显卡驱动
 sudo apt install build-essential         # 编译工具链
 sudo apt install nvidia-cuda-toolkit     # CUDA 工具包
+```
 💡 提示：若已安装 NVIDIA 官方驱动，可跳过 ubuntu-drivers 步骤。
 
-Python 环境搭建（推荐使用 Anaconda）
-创建虚拟环境（Python 版本需满足 3.7 ≤ version < 3.11）：
+Python 环境搭建（推荐使用 Anaconda）创建虚拟环境（Python 版本需满足 3.7 ≤ version < 3.11）：
 bash
 编辑
-conda create --name think_predict python=3.10 -y
-conda activate think_predict
+```conda create --name think_predict python=3.10 -y
+conda activate think_predict```
 安装项目依赖：
 bash
-编辑
-pip install -r requirements.txt
+编辑pip install -r requirements.txt
 安装关键库：
 LLaMA-Factory
 TRL (Transformer Reinforcement Learning)
@@ -152,25 +153,26 @@ TRL (Transformer Reinforcement Learning)
 
 📖 相关算法文献
 算法	论文链接
+```
 GRPO	arXiv:2402.03300
 RLOO	arXiv:2402.14740
 KTO	arXiv:2402.01306
-DPO	arXiv:2305.18290
-🔍 实验一：思维 Token 范围预测
-步骤 1：数据预处理
+DPO	arXiv:2305.18290```
+###🔍 实验一：思维 Token 范围预测
+####步骤 1：数据预处理
 自动下载并处理原始数据集，结果将保存至子目录：
 
 bash
 编辑
-python ./think/get_think_process_1.py
+```python ./think/get_think_process_1.py
 python ./think/get_think_process_2.py
-python ./think/get_think_process_3.py
-步骤 2：格式转换（适配 LLaMA-Factory）
+python ./think/get_think_process_3.py```
+####步骤 2：格式转换（适配 LLaMA-Factory）
 将处理后的数据转为标准 JSON 格式：
 
 bash
 编辑
-python ./think/convert_json.py --choice 0 --data_path /your/data/path
+```python ./think/convert_json.py --choice 0 --data_path /your/data/path```
 📌 参数说明详见 ./think/convert_json.py。
 
 步骤 3：模型训练（使用 LLaMA-Factory）

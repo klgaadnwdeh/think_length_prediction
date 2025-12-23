@@ -89,7 +89,7 @@ if __name__ == '__main__':
                         help="Maximum length of the completion. This argument is required if you want to use the default data "
                              "collator and your model is an encoder-decoder.", default=1024)
     parser.add_argument('--output_path', type=str, help="Output path for the trained model",
-                        default=r"/mnt/f/home_fix/1/GRPO/model")
+                        default=r"../model/think/GRPO/data1/model")
 
     args = parser.parse_args()
 

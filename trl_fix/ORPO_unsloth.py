@@ -29,11 +29,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, default=r"../model/think/..")
-    parser.add_argument('--train_data_path', type=str, default=r"../data/think/")
-    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/..")
+    parser.add_argument('--train_data_path', type=str, default=r"../data/think/data1/train_data")
+    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/data1/valid_data")
     parser.add_argument('--logging_steps', type=int, default=10)
     parser.add_argument('--num_train_epochs', type=int, default=6)
-    parser.add_argument('--output_path', type=str, default=r"/mnt/f/home_fix/3/orpo/model")
+    parser.add_argument('--output_path', type=str, help="",default=r"../model/think/ORPO/data1/model")
     args = parser.parse_args()
 
 

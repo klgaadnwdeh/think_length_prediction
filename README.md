@@ -49,7 +49,7 @@ python ./think/get_think_process_2.py
 python ./think/get_think_process_3.py
 ```
 
-#### 2.将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看项目中`./think/convert_json.py`中的代码。
+#### 2.将处理好的数据，使用以下的python代码进行转换，转换为llamafactory支持的json格式。具体操作可查看项目中`./think/convert_json.py`中的代码进行配置相应的参数。
 
 ```python
 python ./think/convert_json.py --choice 0 --data_path xxxx
@@ -81,7 +81,7 @@ python ./think/convert_json.py --choice 0 --data_path xxxx
 
 训练过程中，如有需要，请开启记录模式，记录实验过程。本实验使用tensorboard来记录实验过程。具体设置参考[链接](https://hugging-face.cn/docs/trl/logging)来实现,
 
-#### 5训练过后，测试代码如下
+#### 5训练过后，测试代码如下，具体操作可查看项目中`/think/think_predict.py`中的代码进行配置相应的参数
 
 ```bash
 python /think/think_predict.py 

@@ -117,19 +117,27 @@ def calculate_metrics(preds, labels):
                     cleaned.append(np.nan)
         return cleaned
 
-    preds = clean_data(preds)
-    # 把这个空值转换为nan
-    preds = np.nan_to_num(preds, nan=0.0)
-    # 数据转换为numpy
-    preds = np.array(preds, dtype=np.float64)
+    preds_cleaned = clean_data(preds)
     labels = np.array(labels, dtype=np.float64)
-
-    # Calculate strict accuracy
-    strict_accuracy = ((preds == labels).sum()) / len(labels)
-
-    # Calculate accuracy with tolerance
-    accuracy_with_tolerance = ((np.abs(preds - labels) <= 1).sum()) / len(labels)
-    return strict_accuracy,accuracy_with_tolerance
+    
+    # 创建有效样本的掩码：预测值不是NaN
+    valid_mask = ~np.isnan(preds_cleaned)
+    
+    if not valid_mask.any():
+        return 0.0, 0.0 # 或返回其他指示符
+    
+    valid_preds = np.array(preds_cleaned)[valid_mask]
+    valid_labels = labels[valid_mask]
+    
+    strict_acc = (valid_preds == valid_labels).mean()
+    tolerant_acc = (np.abs(valid_preds - valid_labels) <= 1).mean()
+    
+    # 可选：打印或记录无效样本的数量以供调试
+    invalid_count = len(preds) - valid_mask.sum()
+    if invalid_count > 0:
+        print(f"警告：有 {invalid_count} 个预测值无法解析，已从准确率计算中排除。")
+    
+    return strict_acc, tolerant_acc
 
 
 def find_text_discrepancies(list1, batch_size=100000):
@@ -190,7 +198,8 @@ if __name__ == '__main__':
     parser.add_argument('--tensor_parallel_size', type=int, default=1,help='')
     parser.add_argument('--gpu_memory_utilization', type=float, default=0.85,help='')
     parser.add_argument('--max_model_len', type=int, default=600,help='')
-    parser.add_argument('--device_config', type=int, default=str,help='cuda')
+    # 在 parser.add_argument 部分，修正 device_config 的定义
+    parser.add_argument('--device_config', type=str, default='cuda:0', help='CUDA device string')
     args = parser.parse_args()
     choice=args.choice
     dataset = ["open-r1/OpenThoughts-114k-math", "Phsoft-ai/alpaca-gpt4-CoT"]

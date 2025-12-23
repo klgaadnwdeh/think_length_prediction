@@ -179,7 +179,7 @@ def find_text_discrepancies(list1, batch_size=100000):
     predicted_labels = [result["predicted_label"] for result in results]
     # 计算准确率
     accuracy = calculate_metrics(predicted_labels, true_labels)
-    with open("/home/ubuntu/Ruxin/data/think/record.txt", "w") as f:
+    with open("./record.txt", "w") as f:
         f.write(f"严格准确率: {accuracy[0]:.4f}")
         f.write('/n')
         f.write(f"容忍度准确率: {accuracy[1]:.4f}")  # 输出结果

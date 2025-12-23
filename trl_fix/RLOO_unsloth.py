@@ -141,12 +141,9 @@ if __name__ == "__main__":
     import time
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, help="",
-                        default=r"/mnt/d/home/home/picture_core/total/1/Qwen2-0.5B-Instruct")
-    parser.add_argument('--train_data_path', type=str,
-                        default=r"/mnt/d/home/home/science/data/think/data1/predic_think_class/train_data_class")
-    parser.add_argument('--valid_data_path', type=str,
-                        default=r"/mnt/d/home/home/science/data/think/data1/predic_think_class/valid_data")
+    parser.add_argument('--model_path', type=str, default=r"../model/think/..")
+    parser.add_argument('--train_data_path', type=str, default=r"../data/think/")
+    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/..")
     parser.add_argument('--logging_steps', type=int, help="the logging frequency.", default=10)
     parser.add_argument('--save_steps', type=int, help="the saving frequency.", default=26000)
     parser.add_argument('--learning_rate', type=float, help="The initial learning rate for [`AdamW`] optimizer.",

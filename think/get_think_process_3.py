@@ -4,30 +4,37 @@ import random
 from datasets import load_dataset, Dataset, load_from_disk, concatenate_datasets
 from transformers import AutoTokenizer
 
-
-def process_think_data(data1):
-    length = 0
+def process_think_data(data1, tokenizer):  # 修复1：传入tokenizer
     start = "<think>"
     end = "</think>"
     question = data1["messages"][0]["content"]
     output_data = data1["messages"][1]["content"]
-    think_data = output_data.split(start)[-1].split(end)[-1].strip()
+    
+    # 修复2：正确提取 <think> 和 </think> 之间的内容
+    think_data = output_data.split(start)[-1].split(end)[0].strip()
+    
+    # 优化：直接获取长度，移除print
     encoded_texts = tokenizer(think_data, return_tensors="pt", padding=False, truncation=True)
-    for ids in encoded_texts['input_ids']:
-        length = len(ids)
-        print(length)
+    length = encoded_texts['input_ids'].shape[1]  # 直接获取token数
+    
     return {"prompt": question, "think_label": length}
 
-def process_data(data):
-    result_data = data.map(lambda x:process_think_data(x))
+def process_data(data, tokenizer):  # 修改，以传入tokenizer
+    result_data = data.map(lambda x: process_think_data(x, tokenizer))  # 传入tokenizer
     return result_data
 
-
 def count(data):
-    seem = set()
-    seem = [seem.add(d["prompt"]) for d in data]
-    if len(seem) == len(data):
-        print("数据的长度是一样的，没有这个出错的")
+    # 修复3：正确的重复项检查逻辑
+    seen_prompts = set()
+    duplicate_count = 0
+    for d in data:
+        if d["prompt"] in seen_prompts:
+            duplicate_count += 1
+        else:
+            seen_prompts.add(d["prompt"])
+    if duplicate_count > 0:
+        print(f"提示：发现 {duplicate_count} 条重复的prompt记录。")
+        
     class_counts = Counter()
     for example in data:
         # 计算新类的值
@@ -120,20 +127,21 @@ def get_data(data1, b=0.3):
     else:
         train_data_label = Dataset.from_list(train_data_label)
         train_data_label.save_to_disk(r"../data/think/data3/train_data")
-
+    if not isinstance(tmp_data_label, Dataset):
+        tmp_data_label = Dataset.from_list(tmp_data_label)
     tmp_data_label.save_to_disk(r"../data/think/data3/valid_data")
 
     print("Train size:", len(train_data_label))
     print("Valid size:", len(tmp_data_label))
 
-
 if __name__ == "__main__":
+    import random
+    random.seed(42)  # 优化：设置随机种子
+    
     tokenizer = AutoTokenizer.from_pretrained(r"../model/think/Qwen2-0.5B-Instruct", legacy=False)
-    from datasets import load_dataset
-    # Login using e.g. `huggingface-cli login` to access this dataset
-
-    # Login using e.g. `huggingface-cli login` to access this dataset
     ds = load_dataset("mlfoundations-dev/AM-DeepSeek-R1-Distilled-1.4M-am_0.5M")["train"]
-    label_data = process_data(ds)
+    
+    # 修复：传递tokenizer
+    label_data = process_data(ds, tokenizer)
     data = count(label_data)
     get_data(data)

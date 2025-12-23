@@ -89,9 +89,12 @@ def reduce_dataset(train_dataset, source_data, valid_data,number=20000):
     return train_dataset, valid_dataset.to_list()
 
 def count(data,count_number=400):
-    seem = set()
-    seem = [seem.add(d["prompt"]) for d in data]
-    if len(seem) == len(data):
+    seen = set()
+    for d in data:
+        if d["prompt"] in seen:
+            print(f"发现重复的prompt: {d['prompt'][:50]}...")
+        seen.add(d["prompt"])
+    if len(seen) == len(data):
         print("数据的长度是一样的，没有这个出错的")
     class_counts = Counter()
     for example in data:
@@ -118,7 +121,8 @@ def count(data,count_number=400):
     return filtered_dataset
 
 
-def get_data(data1,number=20000,ratio=0.3,output_file="../data/think"):
+def get_data(data1,number=20000,ratio=0.3,output_file="../data/think",seed=42):
+    random.seed(seed)
     class_counts = {}
     for item in data1:
         class_name = item['class_name']

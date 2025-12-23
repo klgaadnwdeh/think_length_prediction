@@ -58,11 +58,9 @@ def reward(prompts, completions, labels, **kwargs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # ... (args 定义保持不变) ...
-    parser.add_argument('--model_path', type=str, help="", default="../model/think/data1/Qwen2-0.5B-Instruct")
-    parser.add_argument('--train_data_path', type=str,
-                        default=r"/mnt/d/home/home/science/data/think/data1/predic_think_class/train_data_class")
-    parser.add_argument('--valid_data_path', type=str,
-                        default=r"/mnt/d/home/home/science/data/think/data1/predic_think_class/valid_data")
+    parser.add_argument('--model_path', type=str, default=r"../model/think/..")
+    parser.add_argument('--train_data_path', type=str, default=r"../data/think/")
+    parser.add_argument('--valid_data_path', type=str, default=r"../data/think/..")
     parser.add_argument('--logging_steps', type=int, help="the logging frequency.", default=10)
     parser.add_argument('--save_steps', type=int, help="the saving frequency.", default=13000)
     parser.add_argument('--num_train_epochs', type=int, help="The number of training epochs for the reward model.",

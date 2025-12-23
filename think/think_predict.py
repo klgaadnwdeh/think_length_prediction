@@ -1,16 +1,30 @@
 import os
 import re
-import argparse
+from pathlib import Path
+
 import datasets
 import numpy as np
-from datasets import Dataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-import torch
 from transformers import DataCollatorWithPadding, AutoTokenizer
 from vllm import LLM, SamplingParams
 
-prompt_think="""
+Prompt = """
+Task Description:
+
+
+Instruction:
+{content}
+
+Requirements:
+
+Do not generate the actual response.
+Estimate the str count needed for the response.
+Based on your estimation, output a single interger
+Only output the single integer ; do not include any additional text or explanation.
+Ensure your estimation is as accurate as possible.
+"""
+prompt_think = """
 人得到一个问题，首先是根据问题的深度，难度，复杂度，慢慢地思考问题应该如何解决。在思考过程中运用自己的各种能力，对于问题进行逐步逐步推导解决，在一步一步地推导解决过程中得到结果。得到结果之后，人停止思考并且整合思考过程中的内容，进行大量简化后，得到问题的整个解决办法和结果，最后输出问题的解决办法和结果。
 任务描述：
 question:{question}
@@ -18,30 +32,21 @@ question:{question}
 例如:
 1估计的令牌数量范围在200，则真实思考过程中所花费的令牌数量基本在(200*25,201*25-1)
 2估计的令牌数量范围在320，则真实思考过程中所花费的令牌数量基本在(320*25,321*25-1)
-要求：仅输出估计的令牌数量范围，不生成其他的内容。
+要求：仅输出估计的令牌数量范围，这个范围只能是数学，不能是其他的格式,也不生成其他的内容。
 """
-state_file = "./record.txt"
-if os.path.exists(state_file):
-    with open(state_file, 'r') as f:
-        pass
-else:
-    with open(state_file, 'w') as f:
-        pass
 
 
-def load_llm_model(model_path, tensor_parallel_size=1, enforce_eager=True, gpu_memory_utilization=0.98,
-                   max_model_len=2000, device_config="cuda:0"):
-    llm = LLM(model=model_path, trust_remote_code=True, dtype="auto", tensor_parallel_size=tensor_parallel_size,
-              gpu_memory_utilization=gpu_memory_utilization, max_model_len=max_model_len,
-              device=device_config,
+def load_llm_model(model_path, tensor_parallel_size=1, enforce_eager=False, gpu_memory_utilization=0.85,max_model_len=2000,device_config="cuda:0"):
+    llm = LLM(model=model_path, trust_remote_code=True, dtype="bfloat16", tensor_parallel_size=tensor_parallel_size, enforce_eager=enforce_eager, gpu_memory_utilization=gpu_memory_utilization, max_model_len=max_model_len,
               seed=42,
-              swap_space=16,
+              swap_space = 16,
+              quantization=None,
               )
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     return llm, tokenizer
 
-
 def generate_dataloaders(dataset):
+
     validation_dataset = dataset
     validation_dataloader = DataLoader(
         validation_dataset,
@@ -51,33 +56,59 @@ def generate_dataloaders(dataset):
     return validation_dataloader
 
 
-def process_batch_results(sub_batch, batch_responses):
-    """将批次结果汇总到 results 列表中，包含真实标签和预测标签（转换为类别）"""
+def extract_number(text, default=0.0):
+    """
+    从字符串中提取第一个数字（整数或浮点数，支持负号）
+    如果失败，返回 default（而不是 NaN）
+    """
+    if not isinstance(text, str):
+        try:
+            return float(text)
+        except (TypeError, ValueError):
+            return default
+
+    # 更鲁棒的正则：匹配 -12.5, .5, 100, 3. 等
+    match = re.search(r'-?\d*\.?\d+', text)
+    if match:
+        try:
+            return float(match.group())
+        except ValueError:
+            pass
+    return default
+
+
+def process_batch_results(sub_batch, batch_responses, nan_replacement=0.0):
+    """
+    处理一个子批次，返回清洗后的结果列表。
+    - 从 generated_text 中提取预测数字
+    - 从 row["labels"] 中提取真实标签数字
+    - 所有无法解析的值统一替换为 nan_replacement（如 0.0）
+    - 返回的每个 result 中 true_label 和 predicted_label 都是 float，无 NaN
+    """
     results = []
-    # 假设 sub_batch 中的每一项是一个字典，包含 "prompt" 和 "labels" 字段
-    # 假设 batch_responses 是模型生成的结果列表，包含标签（例如字母标签，如 'A' 到 'P'，或者其他标签）
-
     for row, generated_text in zip(sub_batch, batch_responses):
-        # 转换预测标签（字母）为类别（数字），如果不是 'A' 到 'P'，则归为 0 类
+        # 提取真实标签（row["labels"] 可能是字符串 "5" 或数字 5）
+        # true_val = extract_number(row["labels"], default=nan_replacement)
+        original_row = row[0]  # row 是 (dict, prompt)，取第0个元素
+        true_val = extract_number(original_row["labels"], default=nan_replacement)
+        # 提取预测值（从模型生成的文本中找数字）
+        pred_val = extract_number(generated_text, default=nan_replacement)
 
-        # 创建结果字典，只包含真实标签和预测标签
-        result = {
-            "true_label": row[0]["label"],  # 真实标签（字母）
-            "predicted_label": generated_text  # 预测标签（数字，0-15 或者 0 类）
-        }
-        # 将结果添加到汇总列表中
-        results.append(result)
+        results.append({
+            "true_label": true_val,
+            "predicted_label": pred_val
+        })
+
     return results
-
 
 def assemble_batch(data_list):
     batch = []
     for row in data_list:
         question = row["prompt"]
-        full_content = prompt_think.format(question=question)
-        batch.append((row, full_content))
+        # label = row["labels"]
+        # full_content = prompt_think.format(content=question)
+        batch.append((row, question))
     return batch
-
 
 def process_dataloader(dataloader):
     """
@@ -86,129 +117,130 @@ def process_dataloader(dataloader):
     data_list = []
     for batch in dataloader:
         # 假设每个 batch 是一个字典，包含 'prompt' 和 'labels' 键
-        prompt = batch["prompt"][0]  # 因为 batch_size=1，取第一个元素
-        labels = batch["class_name"][0].item()
-        data_list.append({"prompt": prompt, "label": labels})
+        prompt = batch["prompt"][0]  # 因为 batch_size=data，取第一个元素
+        # print(prompt)
+        labels = batch["class_name"][0]
+        # print(labels)
+        data_list.append({"prompt": prompt, "labels": labels})
     return data_list
 
 
-def calculate_metrics(preds, labels):
+def calculate_metrics(preds, labels,limit=0.5):
     # 确保 preds 和 labels 是 numpy 数组
-    def clean_data(data):
-        cleaned = []
-        for item in data:
-            try:
-                # 如果元素已经是数值类型，则直接添加
-                num = float(item)
-                cleaned.append(num)
-            except (ValueError, TypeError):
-                # 如果不是数值类型，尝试提取其中的数字
-                if isinstance(item, str):  # 确保 item 是字符串类型
-                    # 使用正则表达式查找所有连续的数字
-                    numbers = re.findall(r'\d+', item)
-                    if numbers:
-                        # 假设我们只对第一个找到的数字感兴趣，并将其转换为浮点数
-                        num = float(numbers[0])
-                        cleaned.append(num)
-                    else:
-                        # 如果没有找到任何数字，则添加 NaN
-                        cleaned.append(np.nan)
-                else:
-                    # 如果既不是数值类型也不是字符串类型，则添加 NaN
-                    cleaned.append(np.nan)
-        return cleaned
-
-    preds = clean_data(preds)
-    # 把这个空值转换为nan
-    preds = np.nan_to_num(preds, nan=0.0)
-    # 数据转换为numpy
-    preds = np.array(preds, dtype=np.float64)
-    labels = np.array(labels, dtype=np.float64)
+    preds = np.array(preds)
+    labels = np.array(labels)
 
     # Calculate strict accuracy
-    strict_accuracy = ((np.abs(preds - labels) <= 1).sum()) / len(labels)
+    # strict_accuracy = (preds == labels).sum() / len(labels)
 
     # Calculate accuracy with tolerance
-    accuracy_with_tolerance = ((np.abs(preds - labels) <= 2).sum()) / len(labels)
-    return strict_accuracy,accuracy_with_tolerance
+    accuracy_with_tolerance = ((np.abs(preds - labels) <= limit).sum()) / len(labels)
+    accuracy_with_tolerance_1 = ((np.abs(preds - labels) <= (limit+1)).sum()) / len(labels)
 
-def find_text_discrepancies(list1, batch_size=100000):
+    return accuracy_with_tolerance, accuracy_with_tolerance_1
+
+def find_text_discrepancies(list1,llm_model_path, batch_size=100000, limit=0):
     """使用批处理找出事件间的差异。"""
+
+    path_parts = Path(llm_model_path).parts  # 转为路径部件元组
+    try:
+        total_index = path_parts.index("total")
+        exp1 = path_parts[total_index + 1]  # e.g., "3"
+        exp2 = path_parts[total_index + 2]  # e.g., "1"
+        model_name = path_parts[total_index + 3]  # e.g., "GRPOQwen2-0.5B-GRPO_2"
+    except (ValueError, IndexError):
+        # 如果路径不符合预期，回退到默认命名
+        print("⚠️ 路径格式不符合预期，使用默认输出名")
+        exp1 = exp2 = "default"
+        model_name = Path(llm_model_path).name
+
+        # ✅ 构造输出目录：../data/think/record_{limit}_test/{exp1}/{exp2}
+    output_base_dir = f"../data/think/record_{limit}_test"
+    output_subdir = os.path.join(output_base_dir, exp1, exp2)
+    os.makedirs(output_subdir, exist_ok=True)
+
+    # ✅ 输出文件名：record_{limit}_{model_name}.txt
+    output_filename = f"record_{limit}_{model_name}.txt"
+    output_path = os.path.join(output_subdir, output_filename)
+    # ✅ 确保输出目录存在
+    # output_dir = f"../data/think/record_{limit}_test"
+    # os.makedirs(output_dir, exist_ok=True)
+
     results = []
-    generate_result = []
     print("开始处理...")
+
     # 第一层批处理
     for i in tqdm(range(0, len(list1), batch_size), desc='Processing', ncols=100):
-        generate_result = []
         temp_list = list1[i:i + batch_size]
         batch = assemble_batch(temp_list)
         batch_lengths = [len(content) for _, content in batch]
         min_length = min(batch_lengths)
         max_length = max(batch_lengths)
         print(f"批次内容长度最小值: {min_length}, 最大值: {max_length}")
-        for j in range(0, len(batch), 3000):
-            torch.cuda.empty_cache()
-            sub_batch = batch[j:j + 3000]
-            test = []
-            batch_responses = []
-            for _, content in sub_batch:
-                prompt = [{"role": "user", "content": f"{content}"}]
-                inputs = tokenizer.apply_chat_template(prompt, tokenize=False, add_generation_prompt=True)
-                prompt_ids = tokenizer.encode(inputs, add_special_tokens=False)
-                test.append(prompt_ids)
-            batch_responses = []
-            outputs = llm.generate(prompt_token_ids=test, sampling_params=sampling_params)
-            for output in outputs:
-                generated_text = output.outputs[0].text
-                batch_responses.append(generated_text)
-            del output, outputs
-            torch.cuda.empty_cache()
-            processed_results = process_batch_results(sub_batch, batch_responses)
-            results.extend(processed_results)
-            print(len(results))
-        # 提取 true_label 和 predicted_label 列表
-    true_labels = [result["true_label"] for result in results]
-    predicted_labels = [result["predicted_label"] for result in results]
-    # 计算准确率
-    accuracy = calculate_metrics(predicted_labels, true_labels)
-    with open("../record.txt", "w") as f:
-        f.write(f"严格准确率: {accuracy[0]:.4f}")
-        f.write('/n')
-        f.write(f"容忍度准确率: {accuracy[1]:.4f}")  # 输出结果
-    print(f"严格准确率: {accuracy[0]:.4f}")
-    print(f"容忍度准确率: {accuracy[1]:.4f}")
 
+        # 第二层小批次（避免单次生成太多）
+        for j in range(0, len(batch), 3000):
+            sub_batch = batch[j:j + 3000]
+            try:
+                # ✅ 构建字符串 prompts（不再用 prompt_token_ids）
+                prompts = []
+                for _, content in sub_batch:
+                    prompt = [{"role": "user", "content": f"{content[:1004]}"}]
+                    # 转为字符串格式（apply_chat_template + tokenize=False）
+                    input_str = tokenizer.apply_chat_template(
+                        prompt,
+                        tokenize=False,
+                        add_generation_prompt=True
+                    )
+                    prompts.append(input_str)
+
+                # ✅ 使用 prompts（字符串列表）调用 generate
+                outputs = llm.generate(
+                    prompts,  # ← 关键：传字符串，不是 token IDs
+                    sampling_params=sampling_params
+                )
+
+                batch_responses = []
+                for output in outputs:
+                    generated_text = output.outputs[0].text
+                    print(generated_text)
+                    batch_responses.append(generated_text)
+
+                processed_results = process_batch_results(sub_batch, batch_responses)
+                results.extend(processed_results)
+                print(f"累计结果数: {len(results)}")
+
+            except Exception as e:
+                print(f"处理子批次时出错: {e}")
+                continue  # 跳过错误批次，继续运行
+
+    # 提取标签
+    true_labels = [result["true_label"] for result in results if "true_label" in result]
+    predicted_labels = [result["predicted_label"] for result in results if "predicted_label" in result]
+
+    # 安全计算指标（防止空列表）
+    if len(true_labels) == 0:
+        strict_accuracy = accuracy_with_tolerance = 0.0
+    else:
+        strict_accuracy, accuracy_with_tolerance = calculate_metrics(predicted_labels, true_labels, limit=limit)
+
+    # ✅ 写入文件（路径已确保存在）
+    # output_path = os.path.join(output_dir, f"record_{limit}_GRPO_3_test")
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(f"严格准确率: {strict_accuracy:.4f}\n")
+        f.write(f"{limit * 2}容忍度准确率: {accuracy_with_tolerance:.4f}\n")
+
+    print(f"严格准确率: {strict_accuracy:.4f}")
+    print(f"{limit * 2}容忍度准确率: {accuracy_with_tolerance:.4f}")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, help='', default="..//model//think//")
-    parser.add_argument('--choice', type=int, help='0 for dataset[0], 1 for dataset[1],2 for dataset[2]', default=0)
-    parser.add_argument('--data_prefix_path', type=str, help='', default="../data/think")
-    parser.add_argument('--temperature', type=float, default=0.2,help='Sampling temperature, higher means more random')
-    parser.add_argument('--top_p', type=float, default=0.7,help='Top-p (nucleus) sampling probability')
-    parser.add_argument('--max_tokens', type=int, default=512,help='Maximum number of tokens to generate')
-    parser.add_argument('--tensor_parallel_size', type=int, default=1,help='')
-    parser.add_argument('--gpu_memory_utilization', type=float, default=1.0,help='')
-    parser.add_argument('--max_model_len', type=int, default=2048,help='')
-    parser.add_argument('--device_config', type=int, default=str,help='cuda')
-    args = parser.parse_args()
-    dataset = ["sequelbox/Titanium2.1-DeepSeek-R1", "Magpie-Align/Magpie-Reasoning-V1-150K-CoT-Deepseek-R1-Llama-70B",
-               "mlfoundations-dev/AM-DeepSeek-R1-Distilled-1.4M-am_0.5M"]
-    choice=args.choice
-    if choice == 0:
-        data_path = "data1"
-    elif choice == 1:
-        data_path = "data2"
-    else:
-        data_path = "data3"
-    prefix_path = args.data_prefix_path
-    valid_dataset_path = os.path.join(prefix_path, data_path, "valid_dataset")
-    llm_model_path = args.model_path
-    sampling_params = SamplingParams(temperature=args.temperature, top_p=args.top_p, max_tokens=args.max_tokens)
-    llm, tokenizer = load_llm_model(llm_model_path, tensor_parallel_size=args.tensor_parallel_size, enforce_eager=True,
-                                    gpu_memory_utilization=args.gpu_memory_utilization,
-                                    max_model_len=args.max_model_len, device_config=args.device_config)
-    dataset = datasets.load_from_disk(valid_dataset_path)
+    limit=[0,0.5,1,2]
+    data_path = r"/mnt/d/home/home/science/data/think/data3/1/valid_data_label"
+    dataset = datasets.load_from_disk(data_path)
     validation_dataloader = generate_dataloaders(dataset)
     data_list = process_dataloader(validation_dataloader)
-    find_text_discrepancies(data_list)
+    llm_model_path=r"/mnt/f/home_fix/test/orpo/2/model/checkpoint-14166"
+    sampling_params = SamplingParams(temperature=0.2 ,top_p=0.7, max_tokens=20)
+    llm, tokenizer = load_llm_model(llm_model_path, tensor_parallel_size=1, enforce_eager=False,
+                                    gpu_memory_utilization=0.90, max_model_len=1024, device_config="cuda")
+    find_text_discrepancies(data_list,llm_model_path=llm_model_path,limit=limit[3])

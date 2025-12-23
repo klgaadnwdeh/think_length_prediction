@@ -179,7 +179,7 @@ def find_text_discrepancies(list1, batch_size=100000):
     predicted_labels = [result["predicted_label"] for result in results]
     # 计算准确率
     accuracy = calculate_metrics(predicted_labels, true_labels)
-    with open("./record.txt", "w") as f:
+    with open("../accuracy/step/record.txt", "w") as f:
         f.write(f"严格准确率: {accuracy[0]:.4f}")
         f.write('/n')
         f.write(f"容忍度准确率: {accuracy[1]:.4f}")  # 输出结果
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', type=str, help='', default="..//model//step//")
     parser.add_argument('--choice', type=int, help='0 for dataset[0], 1 for dataset[1]', default=0)
-    parser.add_argument('--data_prefix_path', type=str, help='', default="../data/step")
+    parser.add_argument('--data_prefix_path', type=str, help='', default="../data/step/")
     parser.add_argument('--temperature', type=float, default=0.2,help='Sampling temperature, higher means more random')
     parser.add_argument('--top_p', type=float, default=0.7,help='Top-p (nucleus) sampling probability')
     parser.add_argument('--max_tokens', type=int, default=100,help='Maximum number of tokens to generate')

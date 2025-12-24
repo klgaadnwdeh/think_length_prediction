@@ -157,15 +157,7 @@ if __name__ == '__main__':
         max_prompt_length=args.max_prompt_length,
         save_steps=args.save_steps,
         report_to="tensorboard",
-        num_generations=args.num_generations,
-        generation_kwargs={
-            "do_sample": True,
-            "temperature": 1.0,  # ← 鼓励探索错误答案
-            "top_p": 0.95,
-            "max_new_tokens": 20,
-            "pad_token_id": tokenizer.eos_token_id,
-            "eos_token_id": tokenizer.eos_token_id,
-        }
+        num_generations=args.num_generations
     )
 
     trainer = GRPOTrainer(

@@ -162,7 +162,7 @@ if __name__ == "__main__":
     parser.add_argument('--exp_name', type=str, help="Experiment name.", default="rloo_experiment")
     parser.add_argument('--seed', type=int, help="Random seed.", default=42)
     parser.add_argument('--max_completion_length', type=int, help="Maximum length of completions.",
-                        default=256)  # 原response_length
+                        default=20)  # 原response_length
 
     parser.add_argument('--per_device_train_batch_size', type=int,
                         help="Batch size per device accelerator core/CPU for training.",
@@ -177,10 +177,9 @@ if __name__ == "__main__":
                         default=r"../model/think/RLOO/data1/model")
 
     # 新增的RLOOConfig参数（如果需要）
-    parser.add_argument('--temperature', type=float, help="Temperature for sampling.", default=1.0)
     parser.add_argument('--top_p', type=float, help="Top-p sampling parameter.", default=1.0)
     parser.add_argument('--repetition_penalty', type=float, help="Repetition penalty for generation.", default=1.0)
-    parser.add_argument('--max_prompt_length', type=int, help="Maximum length of the prompt.", default=512)
+    parser.add_argument('--max_prompt_length', type=int, help="Maximum length of the prompt.", default=1024)
     parser.add_argument('--beta_start', type=float, help="Start value for beta annealing.", default=0.0)  # 如果需要
     parser.add_argument('--beta_end', type=float, help="End value for beta annealing.", default=0.1)  # 如果需要
     parser.add_argument('--epsilon_high', type=float, help="Upper-bound epsilon value for clipping.",
@@ -278,7 +277,7 @@ if __name__ == "__main__":
 
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name= script_args.model_path,
-        max_seq_length=1088,
+        max_seq_length=1044,
         dtype=torch.float16,
         load_in_4bit=False,
         load_in_8bit=False,

@@ -63,6 +63,12 @@ accelerate launch --config_file examples/accelerate_configs/deepspeed_zero4.yaml
     --local_rollout_forward_batch_size 1 \
     --missing_eos_penalty 1.0
 """
+"""""""""
+
+注明trl-0.15版本的rloo，可作为参考使用，使用请看rloo_unsloth即可
+""""""""
+
+
 
 import numpy as np
 import re
